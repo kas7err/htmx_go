@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"io"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -97,6 +98,17 @@ func newPage() Page {
 	}
 }
 
+type Block struct {
+	Id int
+}
+
+type Blocks struct {
+	Start  int
+	Next   int
+	More   bool
+	Blocks []Block
+}
+
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -110,6 +122,33 @@ func main() {
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(200, "index", page)
+	})
+
+	e.GET("/blocks", func(c echo.Context) error {
+		time.Sleep(time.Millisecond * 1150)
+		startStr := c.QueryParam("start")
+		start, err := strconv.Atoi(startStr)
+		if err != nil {
+			start = 0
+		}
+
+		blocks := []Block{}
+		for i := start; i < start+10; i++ {
+			blocks = append(blocks, Block{Id: i})
+		}
+
+		template := "blocks"
+		if start == 0 {
+			template = "blocks-index"
+		}
+
+		return c.Render(http.StatusOK, template, Blocks{
+			Start:  start,
+			Next:   start + 10,
+			More:   start+10 < 100,
+			Blocks: blocks,
+		})
+
 	})
 
 	e.POST("/contacts", func(c echo.Context) error {
