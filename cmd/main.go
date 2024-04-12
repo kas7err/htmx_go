@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"io"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,12 +24,17 @@ func newTemplate() *Templates {
 }
 
 type Contact struct {
+	Id    int
 	Name  string
 	Email string
 }
 
+var id = 0
+
 func newContact(name, email string) Contact {
+	id++
 	return Contact{
+		Id:    id,
 		Name:  name,
 		Email: email,
 	}
@@ -46,6 +52,15 @@ func newData() Data {
 			newContact("ivan", "ivan@abv.bg"),
 		},
 	}
+}
+
+func (d Data) indexOf(id int) int {
+	for i, contact := range d.Contacts {
+		if contact.Id == id {
+			return i
+		}
+	}
+	return -1
 }
 
 func (d Data) hasEmail(email string) bool {
@@ -110,6 +125,22 @@ func main() {
 
 		c.Render(200, "form", newFormData())
 		return c.Render(200, "oob-contact", contact)
+	})
+
+	e.DELETE("/contacts/:id", func(c echo.Context) error {
+		idString := c.Param("id")
+		id, err := strconv.Atoi(idString)
+		if err != nil {
+			return c.String(400, "invalid id")
+		}
+
+		index := page.Data.indexOf(id)
+		if index == -1 {
+			return c.String(404, "Contact not found")
+		}
+
+		page.Data.Contacts = append(page.Data.Contacts[:index], page.Data.Contacts[index+1:]...)
+		return c.NoContent(200)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
