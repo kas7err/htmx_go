@@ -7,6 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>HTMX</title>
 	<script src="https://unpkg.com/htmx.org@1.9.11"></script>
+	<link rel="stylesheet" href="/css/index.css">
 </head>
 
 <body>
@@ -52,10 +53,9 @@
 {{ end }}
 
 {{ block "contact" .}}
-<div id="test-{{ .Id }}" style="display: flex; flex-flow: row">
-	<div hx-target="#test-{{ .Id }}" hx-swap="outerHTML" hx-delete="/contacts/{{ .Id }}"
-		style="width: 1rem;cursor: pointer;">
-
+<div id="test-{{ .Id }}" class="contact" style="display: flex; flex-flow: row">
+	<div hx-indicator="#ci-{{ .Id }}" hx-target="#test-{{ .Id }}" hx-swap="outerHTML swap:500ms"
+		hx-delete="/contacts/{{ .Id }}" style="width: 1rem;cursor: pointer;">
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 			<path fill="none" d="M0 0h24v24H0z" />
 			<path
@@ -64,6 +64,9 @@
 	</div>
 	Name: {{ .Name}}
 	Email: {{ .Email}}
+	<div id="ci-{{ .Id }}" class="htmx-indicator">
+		<img src="/images/bars.svg" alt="loading" style="width: 1rem;">
+	</div>
 </div>
 {{ end }}
 

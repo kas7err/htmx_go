@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -103,6 +104,9 @@ func main() {
 	e.Renderer = newTemplate()
 
 	page := newPage()
+
+	e.Static("/css", "css")
+	e.Static("/images", "images")
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(200, "index", page)
